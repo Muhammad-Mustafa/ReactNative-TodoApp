@@ -5,12 +5,15 @@ import {
   ScrollView,
   View,
   Text,
-  StatusBar,
+  TouchableWithoutFeedback,
+  Keyboard,
   FlatList,
+  Alert,
 } from 'react-native';
 
 import Header from './components/Header';
 import TodoItems from './components/TodoItems';
+import AddTodo from './components/AddTodos';
 
 const App = () => {
   const [todos, setTodos] = useState([
@@ -20,24 +23,51 @@ const App = () => {
   ]);
 
   const pressHandler = (key) => {
-    return (
-    setTodos((prevTodos) => {
-      return prevTodos.filter(todo => key != todo.key)
-    })  
-    );
+    return setTodos((prevTodos) => {
+      return prevTodos.filter((todo) => key != todo.key);
+    });
+  };
+
+  const submitHandler = (text) => {
+    if (text.length > 3) {
+      setTodos((prevTodos) => {
+        return [{text: text, key: Math.random().toString()}, ...prevTodos];
+      });
+    } else {
+      Alert.alert(
+        'Invalid Todo',
+        'The Todo you want to enter is invalid please try again ',
+        // [
+        //   {
+        //     text: 'ask me later',
+        //     onPress: () => console.log('ask me later pressed'),
+        //   },
+        // ],
+      );
+    }
   };
 
   return (
     <>
-      <View style={styles.container}>
-        <Header />
-        <View style={styles.content}>
-          {/* To from */}
-          <View style={styles.list}>
-            <FlatList data={todos} renderItem={({item}) => { return(<TodoItems item={item} pressHandler={pressHandler} />)}} />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+        }}>
+        <View style={styles.container}>
+          <Header />
+          <View style={styles.content}>
+            <AddTodo submitHandler={submitHandler} />
+            <View style={styles.list}>
+              <FlatList
+                data={todos}
+                renderItem={({item}) => {
+                  return <TodoItems item={item} pressHandler={pressHandler} />;
+                }}
+              />
+            </View>
           </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </>
   );
 };
@@ -47,12 +77,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  content:{
+  content: {
     padding: 40,
   },
-  list:{
+  list: {
     paddingTop: 50,
-  }
+  },
 });
 
 export default App;
